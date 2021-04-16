@@ -2,6 +2,7 @@
  ============================================================================
  Name        : TrabajoParctico1.c
  Author      : Ruiz Espada Jessica Johanna.
+ División	 : 1°B
  Description : 1 Enunciado
 Hacer una calculadora. Para ello el programa iniciará y contará con un menú de opciones:
 1. Ingresar 1er operando (A=x)
@@ -33,26 +34,30 @@ que contenga las funciones para realizar las cinco operaciones.
 #include <stdlib.h>
 #include <stdio_ext.h>
 #include "operaciones_matematicas.h"
-int pedirValidarNumero(int* numero, char mensaje[], int minimo, int maximo);
-float pedirNumero(char mensaje[]);
+#include "pedir_valores.h"
+
 int main(void)
 {
 	int opciones;
-	float operador1;
-	float operador2;
+	int respuesta;
+	int respuestaSumar;
+	int respuestaRestar;
+	int respuestaMultiplicar;
+	int respuestaDividir;
+	int respuestaFactorial1;
+	int respuestaFactorial2;
+	int resultadoFactorial1;
+	int resultadoFactorial2;
 	int flag1;
 	int flag2;
 	int flag3;
-	int respuesta;
+	float operador1;
+	float operador2;
 	float resultadoSuma;
 	float resultadoResta;
 	float resultadoMultiplicacion;
 	float resultadoDivision;
-	int resultadoFactorial1;
-	int resultadoFactorial2;
-	int respuestaDividir;
-	int respuestaFactorial1;
-	int respuestaFactorial2;
+
 	flag1 = 1;
 	flag2 = 1;
 	flag3 = 1;
@@ -62,9 +67,10 @@ int main(void)
 
 	do
 	{
-		respuesta = pedirValidarNumero (&opciones,"\nMENU.\n\n1. Ingresar 1er operando. \n2. Ingresar 2do operando. \n3. Calcular todas las operaciones. \n4. Informar resultados. \n5. Salir.\n\nIngrese la opción que desea realizar: ", 1, 5);
+		printf("\nMENU.\n\n1. Ingresar 1er operando (A = %.2f). \n2. Ingresar 2do operando (B = %.2f). \n", operador1, operador2);
+		respuesta = pedirValidarNumero (&opciones,"3. Calcular todas las operaciones. \n4. Informar resultados. \n5. Salir.\n\nIngrese la opción que desea realizar: ", 1, 5);
 
-		if(respuesta == 0) //hacer else
+		if(respuesta == 0)
 		{
 			switch (opciones)
 			{
@@ -80,26 +86,26 @@ int main(void)
 					}
 				break;
 				case 2:
-					if(flag2==1)
+					if(flag2==1 && flag1==0)
 					{
 					operador2 = pedirNumero("\nIngresar 2do operador: \n");
 					flag2=0;
 					}
 					else
 					{
-						printf("\nYa ingreso el 2do operador.\n");
+						printf("\nYa ingreso el 2do operador y/o le falta ingresar el 1er operador.\n");
 					}
 				break;
 				case 3:
-					if(flag1 == 0 || flag2==0)
+					if(flag2==0)
 					{
 						printf("\n	C  A  L  C  U  L  A  N  D  O  .  .  .\n");
-						sumar (&resultadoSuma, operador1, operador2);
-						restar (&resultadoResta, operador1, operador2);
-						multiplicar (&resultadoMultiplicacion, operador1, operador2);
-						respuestaDividir = dividir(&resultadoDivision, operador1, operador2);
-						respuestaFactorial1 = calcularFactorial(&resultadoFactorial1, operador1);
-						respuestaFactorial2 = calcularFactorial(&resultadoFactorial2, operador2);
+						respuestaSumar = sumar(operador1, operador2, &resultadoSuma);
+						respuestaRestar = restar(operador1, operador2, &resultadoResta);
+						respuestaMultiplicar = multiplicar (operador1, operador2, &resultadoMultiplicacion);
+						respuestaDividir = dividir(operador1, operador2, &resultadoDivision);
+						respuestaFactorial1 = calcularFactorial(operador1, &resultadoFactorial1);
+						respuestaFactorial2 = calcularFactorial(operador2, &resultadoFactorial2);
 						flag3 = 0;
 					}
 					else
@@ -108,25 +114,55 @@ int main(void)
 					}
 				break;
 				case 4:
-					if(flag3 == 0 && (flag1 == 0 || flag2 == 0))
+
+					if(flag3 == 0)
 					{
-						printf("\na) El resultado de %.2f + %.2f es: %.2f \nb) El resultado de %.2f - %.2f es: %.2f\n", operador1, operador2, resultadoSuma, operador1, operador2, resultadoResta);
+						if(respuestaSumar == 0)
+						{
+							printf("\na) El resultado de %.2f + %.2f es: %.2f ", operador1, operador2, resultadoSuma);
+						}
+						else
+						{
+							printf("\nERROR, intente nuevamente, por favor.");
+						}
+						if(respuestaRestar == 0)
+						{
+							printf("\nb) El resultado de %.2f - %.2f es: %.2f ", operador1, operador2, resultadoResta);
+						}
+						else
+						{
+							printf("\nERROR, intente nuevamente, por favor.");
+						}
 						if(respuestaDividir==0)
 						{
-							printf("c)El resultado de %.2f / %.2f es: %.2f\n", operador1, operador2, resultadoDivision);
+							printf("\nc) El resultado de %.2f / %.2f es: %.2f", operador1, operador2, resultadoDivision);
 						}
 						else
 						{
-							printf("c)No es posible dividir por cero");
+							if(respuestaDividir == -2)
+							{
+								printf("\nc) No es posible dividir por cero");
+							}
+							else
+							{
+								printf("\nERROR, intente nuevamente, por favor.");
+							}
 						}
-						printf("\nd)El resultado de %.2f * %.2f es: %.2f\n", operador1, operador2, resultadoMultiplicacion);
+						if(respuestaMultiplicar == 0)
+						{
+							printf("\nd) El resultado de %.2f X %.2f es: %.2f ", operador1, operador2, resultadoMultiplicacion);
+						}
+						else
+						{
+							printf("\nERROR, intente nuevamente, por favor.");
+						}
 						if(respuestaFactorial1==0)
 						{
-							printf("e) “El factorial de %.2f es: %d y ", operador1, resultadoFactorial1);
+							printf("\ne) El factorial de %.2f es: %d y ", operador1, resultadoFactorial1);
 						}
 						else
 						{
-							printf("e) “No es posible calcular el factorial de %.2f y ", operador1);
+							printf("\ne) No es posible calcular el factorial de %.2f y ", operador1);
 						}
 						if(respuestaFactorial2==0)
 						{
@@ -144,32 +180,13 @@ int main(void)
 				break;
 			}
 		}
+		else
+		{
+			printf("\nERROR, intente nuevamente, por favor.\n");
+		}
 	}while(opciones != 5);
 	printf("_____________________________________\n\n	G  R  A  C  I  A  S \n_____________________________________");
 
 	return EXIT_SUCCESS;
 }
 
-int pedirValidarNumero(int* numero, char mensaje[], int minimo, int maximo)
-{
-	int respuesta = -1;
-	int auxiliar;
-	printf("%s",mensaje);
-	scanf("%d", &auxiliar);
-	while(auxiliar < minimo || auxiliar > maximo)
-	{
-		printf("ERROR, ingrese un número del %d al %d : ", minimo, maximo);
-		scanf("%d", &auxiliar);
-	}
-	respuesta=0;
-	*numero = auxiliar;
-	return respuesta;
-}
-
-float pedirNumero(char mensaje[])
-{
-	float auxiliar;
-	printf("%s",mensaje);
-	scanf("%f", &auxiliar);
-	return auxiliar;
-}
