@@ -43,24 +43,24 @@ int multiplicar(float operador1, float operador2, float* pResultado);
 
 /**
  * @fn int dividir(float, float, float*)
- * @brief Función que recibe dos números decimales, los multiplica y
+ * @brief Función que recibe dos números decimales, los divide y
  * devuelve el resultado por parametro.
  * @param operador1 Primer operador para dividir.
- * @param operador2 Segundo operador paradividir.
+ * @param operador2 Segundo operador para dividir.
  * @param pResultado Puntero a la variables que guarda el resultado.
- * @return retorna 0 si esta todo bien,, -1 si el puntero es nulo y -2 si el operador2 es cero.
+ * @return Retorna 0 si esta todo bien,, -1 si el puntero es nulo y -2 si el operador2 es cero.
  */
 int dividir(float operador1, float operador2, float* pResultado);
 
 /**
  * @fn int calcularFactorial(float, int*)
- * @brief Función que recibe dos números decimales, los multiplica y
+ * @brief Función que recibe un operador entero, calcula su factorial y
  * devuelve el resultado por parametro.
  * @param operador Operador a ser calculado su factorial.
  * @param pResultado Puntero a la variables que guarda el resultado.
  * @return Retorna 0 si esta todo bien, -1 si el puntero es nulo y -2 si el operador es menor de cero.
  */
-int calcularFactorial(float operador, int* pResultado);
+int calcularFactorial(int operador, int* pResultado);
 
 
 #endif /* OPERACIONES_MATEMATICAS_H_ */

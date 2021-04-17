@@ -63,7 +63,7 @@ int dividir(float operador1, float operador2, float* pResultado)
 	return retorno;
 }
 
-int calcularFactorial(float operador, int* pResultado)
+int calcularFactorial(int operador, int* pResultado)
 {
 	int i;
 	int factorial = 1;

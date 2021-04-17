@@ -48,6 +48,8 @@ int main(void)
 	int respuestaFactorial2;
 	int resultadoFactorial1;
 	int resultadoFactorial2;
+	int operador1Factorial;
+	int operador2Factorial;
 	int flag1;
 	int flag2;
 	int flag3;
@@ -67,8 +69,24 @@ int main(void)
 
 	do
 	{
-		printf("\nMENU.\n\n1. Ingresar 1er operando (A = %.2f). \n2. Ingresar 2do operando (B = %.2f). \n", operador1, operador2);
-		respuesta = pedirValidarNumero (&opciones,"3. Calcular todas las operaciones. \n4. Informar resultados. \n5. Salir.\n\nIngrese la opción que desea realizar: ", 1, 5);
+		if(flag1==1)
+		{
+			printf("\nMENU.\n\n1. Ingresar 1er operando (A = X).");
+		}
+		else
+		{
+			printf("\nMENU.\n\n1. Ingresar 1er operando (A = %.2f).", operador1);
+		}
+		if(flag2==1)
+		{
+			printf("\n2. Ingresar 2do operando (B = X). \n");
+		}
+		else
+		{
+			printf("\n2. Ingresar 2do operando (B = %.2f). \n", operador2);
+		}
+
+		respuesta = pedirValidarNumero (&opciones,"3. Calcular todas las operaciones. \n4. Informar resultados. \n5. Salir.\n\nIngrese la opción que desea realizar: ","\nERROR, ingrese una opción valida: ", 1, 5);
 
 		if(respuesta == 0)
 		{
@@ -104,8 +122,10 @@ int main(void)
 						respuestaRestar = restar(operador1, operador2, &resultadoResta);
 						respuestaMultiplicar = multiplicar (operador1, operador2, &resultadoMultiplicacion);
 						respuestaDividir = dividir(operador1, operador2, &resultadoDivision);
-						respuestaFactorial1 = calcularFactorial(operador1, &resultadoFactorial1);
-						respuestaFactorial2 = calcularFactorial(operador2, &resultadoFactorial2);
+						operador1Factorial=(int)operador1;
+						operador2Factorial=(int)operador2;
+						respuestaFactorial1 = calcularFactorial(operador1Factorial, &resultadoFactorial1);
+						respuestaFactorial2 = calcularFactorial(operador2Factorial, &resultadoFactorial2);
 						flag3 = 0;
 					}
 					else
@@ -156,21 +176,36 @@ int main(void)
 						{
 							printf("\nERROR, intente nuevamente, por favor.");
 						}
-						if(respuestaFactorial1==0)
+						if(respuestaFactorial1 ==0)
 						{
-							printf("\ne) El factorial de %.2f es: %d y ", operador1, resultadoFactorial1);
+							printf("\ne) El factorial de %d es: %d y ", operador1Factorial, resultadoFactorial1);
 						}
 						else
 						{
-							printf("\ne) No es posible calcular el factorial de %.2f y ", operador1);
+							if(respuestaFactorial1 ==-2)
+							{
+
+								printf("\ne) No es posible calcular el factorial de %d ya que es menor de cero y ", operador1Factorial);
+							}
+							else
+							{
+								printf("\n No se pudo calcular el factorial de %.2f, intente nuevamente por favor y  ", operador1Factorial);
+							}
 						}
-						if(respuestaFactorial2==0)
+						if(respuestaFactorial2 == 0)
 						{
-							printf("el factorial de %.2f es: %d\n", operador2, resultadoFactorial2);
+							printf("el factorial de %d es: %d.\n", operador2Factorial, resultadoFactorial2);
 						}
 						else
 						{
-							printf("no es posible calcular el factorial de %.2f\n", operador2);
+							if(respuestaFactorial2 == -2)
+							{
+								printf("no es posible calcular el factorial de %d ya que es menor de cero.\n", operador2Factorial);
+							}
+							else
+							{
+								printf("no se pudo calcular el factorial de %.2f, intente nuevamente por favor.\n", operador1Factorial);
+							}
 						}
 					}
 					else
@@ -185,6 +220,7 @@ int main(void)
 			printf("\nERROR, intente nuevamente, por favor.\n");
 		}
 	}while(opciones != 5);
+
 	printf("_____________________________________\n\n	G  R  A  C  I  A  S \n_____________________________________");
 
 	return EXIT_SUCCESS;

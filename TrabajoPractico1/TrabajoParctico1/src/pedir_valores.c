@@ -16,7 +16,7 @@ float pedirNumero(char mensaje[])
 	return auxiliar;
 }
 
-int pedirValidarNumero(int* numero, char mensaje[], int minimo, int maximo)
+int pedirValidarNumero(int* numero, char mensaje[], char mensajeError[], int minimo, int maximo)
 {
 	int respuesta = -1;
 	int auxiliar;
@@ -26,7 +26,7 @@ int pedirValidarNumero(int* numero, char mensaje[], int minimo, int maximo)
 	{
 		while(auxiliar < minimo || auxiliar > maximo)
 		{
-			printf("ERROR, ingrese un número del %d al %d : ", minimo, maximo);
+			printf("%s", mensajeError);
 			scanf("%d", &auxiliar);
 		}
 		respuesta=0;
