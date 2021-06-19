@@ -24,7 +24,9 @@ int utn_pedirAlfanumericoEspacio(char cadena[], int longitud, char* mensaje, cha
 int utn_verificar(char* mensaje, char* mensajeError , int reintentos);
 
 //validar
+int utn_esEnteroConSigno(char cadena[], int limite);
 int utn_esEntero(char cadena[], int limite);
+int utn_esFlotanteConSigno(char cadena[], int limite);
 int utn_esFlotante(char cadena[], int limite);
 int utn_esAlfabetico(char cadena[], int limite);
 int utn_esAlfabeticoEspacio(char cadena[], int limite);

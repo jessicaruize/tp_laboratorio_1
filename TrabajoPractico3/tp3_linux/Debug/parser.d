@@ -1,7 +1,14 @@
-parser.o: ../parser.c ../LinkedList.h ../Employee.h ../parser.h
+parser.o: ../parser.c ../parser.h ../LinkedList.h ../Employee.h \
+ ../pedir_valores.h ../Menu.h ../Controller.h
+
+../parser.h:
 
 ../LinkedList.h:
 
 ../Employee.h:
 
-../parser.h:
+../pedir_valores.h:
+
+../Menu.h:
+
+../Controller.h:

@@ -1,5 +1,7 @@
-Employee.o: ../Employee.c ../Employee.h ../LinkedList.h
+Employee.o: ../Employee.c ../Employee.h ../pedir_valores.h ../Menu.h
 
 ../Employee.h:
 
-../LinkedList.h:
+../pedir_valores.h:
+
+../Menu.h:

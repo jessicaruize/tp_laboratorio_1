@@ -3,55 +3,69 @@
 #include "LinkedList.h"
 #include "Controller.h"
 #include "Employee.h"
-
-/****************************************************
-    Menu:
-     1. Cargar los datos de los empleados desde el archivo data.csv (modo texto).
-     2. Cargar los datos de los empleados desde el archivo data.csv (modo binario).
-     3. Alta de empleado
-     4. Modificar datos de empleado
-     5. Baja de empleado
-     6. Listar empleados
-     7. Ordenar empleados
-     8. Guardar los datos de los empleados en el archivo data.csv (modo texto).
-     9. Guardar los datos de los empleados en el archivo data.csv (modo binario).
-    10. Salir
-*****************************************************/
-
-//llama a funciones de la biblioteca controller.
+#include "Menu.h"
 
 int main()
 {
 	LinkedList* listaEmpleados;
-	int opcion = 1;
+	int opcion;
 	int respuesta;
-
+	char archivo[TAM_NOMBRE];
 	listaEmpleados = ll_newLinkedList();
+	//**************CARGA EL ARCHIVO ultimoID.bin CON EL ULTIMO ID QUE SE ENCUENTA EN EL ARCHIVO data.csv*********************
+	//int numero;
+	//numero = 1000;
+	//controller_saveLastID(numero);
+	//************************************************************************************************************************
+	controller_loadId();
 	do{
-		if(!controller_menu(&opcion))
+		if(!menu_principal(&opcion))
 		{
 			switch(opcion)
 			{
 				case 1:
-					respuesta = controller_loadFromText("data.csv", listaEmpleados);
-					switch (respuesta)
+					if(!utn_pedirAlfanumerico(archivo, TAM_NOMBRE, "Ingrese el nombre del archivo de texto: ", "Error.", 2))
 					{
-						case -3:
-							puts("No existe el archivo.");
-							break;
-						case -2:
-							puts("Operación cancelada.");
-							break;
-						case -1:
-							puts("Error al realizar la operación.");
-							break;
-						case 0:
-							puts("Operación realizada con exito.");
-							break;
+						strncat(archivo, ".csv", TAM_NOMBRE);
+						respuesta = controller_loadFromText(archivo, listaEmpleados);
+						switch (respuesta)
+						{
+							case -3:
+								puts("Error al abrir el archivo, asegurese que exista.");
+								break;
+							case -2:
+								puts("Operación cancelada.");
+								break;
+							case -1:
+								puts("Error al realizar la operación.");
+								break;
+							case 0:
+								puts("Operación realizada con exito.");
+								break;
+						}
 					}
 					break;
 				case 2:
-					controller_loadFromBinary("data.bin", listaEmpleados);
+					if(!utn_pedirAlfanumerico(archivo, TAM_NOMBRE, "Ingrese el nombre del archivo binario: ", "Error.", 2))
+					{
+						strncat(archivo, ".bin", TAM_NOMBRE);
+						respuesta = controller_loadFromBinary(archivo, listaEmpleados);
+						switch (respuesta)
+						{
+							case -3:
+								puts("Error al abrir el archivo, asegurese que exista.");
+								break;
+							case -2:
+								puts("Operación cancelada.");
+								break;
+							case -1:
+								puts("Error al realizar la operación.");
+								break;
+							case 0:
+								puts("Operación realizada con exito.");
+								break;
+						}
+					}
 				break;
 				case 3:
 					respuesta = controller_addEmployee(listaEmpleados);
@@ -69,10 +83,14 @@ int main()
 					}
 				break;
 				case 4:
+					puts("Aguarde por favor...");
 					respuesta = controller_editEmployee(listaEmpleados);
 					switch(respuesta)
 					{
-						case -2:
+						case -4:
+							puts("No hay elementos para editar.");
+							break;
+						case (-3 || -2):
 							puts("ID invalido.");
 							break;
 						case -1:
@@ -84,17 +102,21 @@ int main()
 					}
 				break;
 				case 5:
+					puts("Aguarde por favor...");
 					respuesta = controller_removeEmployee(listaEmpleados);
 					switch(respuesta)
 					{
-						case -3:
-							puts("ID no existe");
+						case -5:
+							puts("No hay empleados el la lista para eliminar.");
+							break;
+						case (-3 || -4):
+							puts("ID no existe.");
 							break;
 						case -2:
-							puts("Operacion cancelada");
+							puts("Operación cancelada.");
 							break;
 						case -1:
-							puts("Error al procesar la operación");
+							puts("Error al procesar la operación.");
 							break;
 						case 0:
 							puts("Empleado eliminado.");
@@ -102,35 +124,109 @@ int main()
 					}
 				break;
 				case 6:
-					if(!controller_ListEmployee(listaEmpleados))
+					respuesta = controller_ListEmployee(listaEmpleados);
+					switch(respuesta)
 					{
-						puts("\n Fin lista de empleados.");
-					}
-					else
-					{
-						puts("\n Error al listar empleados.");
+						case -1:
+							puts("Error al procesar la operación.");
+							break;
+						case 0:
+							puts("Fin de la lista.");
+							break;
+						case 1:
+							puts("No hay empleados para mostrar.");
+							break;
 					}
 				break;
 				case 7:
-					controller_sortEmployee(listaEmpleados);
+					respuesta = controller_sortEmployee(listaEmpleados);
+					switch (respuesta)
+					{
+						case -3:
+							puts("Lista vacia.");
+							break;
+						case -2:
+							puts("Error al ingresar las opciones del menu.");
+							break;
+						case -1:
+							puts("Error al realizar la operación.");
+							break;
+						case 0:
+							puts("");
+							break;
+					}
 				break;
 				case 8:
-					if(!controller_saveAsText("datatxt.csv", listaEmpleados))
+					if(!utn_pedirAlfanumerico(archivo, TAM_NOMBRE, "Ingrese el nombre del archivo de texto: ", "Error.", 2))
 					{
-						puts("Datos guardados con exito.");
+						strncat(archivo, ".csv", TAM_NOMBRE);
+						puts("Aguarde por favor...");
+						respuesta = controller_saveAsText(archivo, listaEmpleados);
+						switch (respuesta)
+						{
+							case -4:
+								puts("Lista vacia. No se guardara nada.");
+								break;
+							case -3:
+								puts("Operacion cancelada.");
+								break;
+							case -2:
+								puts("Copia defectuosa. intente nuevamente.");
+								break;
+							case -1:
+								puts("Error al realizar la operación.");
+								break;
+							case 0:
+								puts("Empleados cargados en el archivos de texto con exito.");
+								break;
+						}
 					}
 				break;
 				case 9:
-					if(!controller_saveAsBinary("data.bin", listaEmpleados))
+					if(!utn_pedirAlfanumerico(archivo, TAM_NOMBRE, "Ingrese el nombre del archivo binario: ", "Error.", 2))
 					{
-						puts("Datos guardados con exito.");
+						strncat(archivo, ".bin", TAM_NOMBRE);
+						puts("Aguarde por favor...");
+						respuesta = controller_saveAsBinary(archivo, listaEmpleados);
+						switch (respuesta)
+						{
+							case -4:
+								puts("Lista vacia. No se guardara nada.");
+								break;
+							case -3:
+								puts("Operacion cancelada.");
+								break;
+							case -2:
+								puts("Copia defectuosa. intente nuevamente.");
+								break;
+							case -1:
+								puts("Error al realizar la operación.");
+								break;
+							case 0:
+								puts("Empleados cargados en el archivos binario con exito.");
+								break;
+						}
 					}
 				break;
 				case 10:
+					respuesta = menu_salir();
+					if(!respuesta)
+					{
+						opcion = 1;
+					}
+					else
+					{
+						if(respuesta == -1)
+						{
+							opcion = 1;
+							puts("Error al responder. Intente nuevamente.");
+						}
+					}
 					puts("Gracias");
 				break;
 			}
 		}
 	}while(opcion != 10);
+	controller_saveID();
     return 0;
-}
+}//FIN MAIN

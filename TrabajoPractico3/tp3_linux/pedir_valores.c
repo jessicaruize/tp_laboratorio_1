@@ -25,7 +25,8 @@ static int verificar(char cadena[], int longitud);
  * corrige errores que se puede cometer con fgets.
  * @param cadena[] array recibido en el cual se envia la informacion una vez depurada.
  * @param longitud variable que trae el valor del tamaño del array cadena.
- * @return retorna: -1 en caso de que se encuentre un error, 1 si es verdadero y o si es falso.
+ * @return retorna: (-1) en caso de que se encuentre un error.
+ * 					(0) si salio bien.
  */
 static int pedirCadena(char cadena[], int longitud) //ajustes de fgets, no se pasa
 {
@@ -51,14 +52,16 @@ static int pedirCadena(char cadena[], int longitud) //ajustes de fgets, no se pa
 }
 
 /*
- * @fn static int esEntero(char[], int)
+ * @fn static int esEnteroConSigno(char[], int)
  * @brief funcion que recibe un array y un entero que es el tamaño de esa cadena
  * recorre el array corroborando que cada indice tenga un número.(y le permite al indice 0 tener un + o -)
  * @param cadena[] array a comparar
  * @param limite valor del tamaño del array recibido.
- * @return retorna: -1 en caso de que se encuentre un error, 1 si es verdadero y o si es falso.
+ * @return retorna: (-1) en caso de que se encuentre un error.
+ * 					(1) si es verdadero.
+ * 					(0) si es falso.
  */
-int utn_esEntero(char cadena[], int limite) //corrobora los indices para corroborar que sea un numero.
+int utn_esEnteroConSigno(char cadena[], int limite) //corrobora los indices para corroborar que sea un numero.
 {
 	int retorno = -1; //ERROR
 	int i;
@@ -80,13 +83,42 @@ int utn_esEntero(char cadena[], int limite) //corrobora los indices para corrobo
 	}
 	return retorno;
 }
+
+/*
+ * @fn static int esEntero(char[], int)
+ * @brief funcion que recibe un array y un entero que es el tamaño de esa cadena
+ * recorre el array corroborando que cada indice tenga un número.
+ * @param cadena[] array a comparar
+ * @param limite valor del tamaño del array recibido.
+ * @return retorna: (-1) en caso de que se encuentre un error.
+ * 					(1) si es verdadero.
+ * 					(0) si es falso.
+ */
+int utn_esEntero(char cadena[], int limite) //corrobora los indices para corroborar que sea un numero.
+{
+	int retorno = -1; //ERROR
+	int i;
+	if(cadena != NULL && limite > 0)
+	{
+		retorno = 1; // VERDADERO
+		for(i=0; (i<limite) && (cadena[i] != '\0'); i++)//no llega al límite ni pasa el \0.
+		{
+			if(cadena[i] > '9' || cadena[i] < '0')
+			{
+				retorno = 0; //FALSO
+				break;
+			}
+		}
+	}
+	return retorno;
+}
 /**
  * @fn static int pedirEntero (int* )
  * @brief funcion que toma un numero como texto para poder validar si es un numero con
  * pedirCadena y corrobora si isNumbre es verdadero.
  * @param pResultado es el puntero que devuelve el entero validado.
- * @return retorno que devuelve -1 si hubo error y 0 si salio bien.
- * @
+ * @return retorno que devuelve (-1) si hubo error y
+ * 								(0) si salio bien.
  */
 static int pedirEntero (int* pResultado)
 {
@@ -112,7 +144,8 @@ static int pedirEntero (int* pResultado)
  * @max es el maximo en caso de que el usuario tenga que ingresar enteros dentro de un rango.
  * @reintentos va a recibir el valor de la cantidad de veces que se va a poder intentar ingresar un dato válido.
  * @condicional se va a recibir 0 en caso de querer ignorar el rango o cualquier otro entero en caso de que no(ej:1).
- * @return retorna -1 si salio algo mal ó 0 si salio bien.
+ * @return retorna (-1) si salio algo mal ó
+ * 				   (0) si salio bien.
  */
 int utn_pedirEntero(int* pResultado, char* mensaje, char* mensajeError, int min, int max, int reintentos, int condicional)
 {
@@ -153,15 +186,17 @@ int utn_pedirEntero(int* pResultado, char* mensaje, char* mensajeError, int min,
 
 
 /*
- * @fn static int esFlotante(char[], int)
+ * @fn static int esFlotanteConSigno(char[], int)
  * @brief funcion que recibe un array y un entero que es el tamaño de esa cadena
  * recorre el array corroborando que cada indice tenga un número decimal.
  * (Le permite al indice 0 tener un mas(+) o menos(-), tambien que tenga un punto en cualquier indice).
  * @param cadena[] array a comparar
  * @param limite valor del tamaño del array recibido.
- * @return retorna: -1 en caso de que se encuentre un error, 1 si es verdadero y o si es falso.
+ * @return retorna: (-1) en caso de que se encuentre un error.
+ * 					(1) si es verdadero.
+ * 					(0) si es falso.
  */
-int utn_esFlotante(char cadena[], int limite)
+int utn_esFlotanteConSigno(char cadena[], int limite)
 {
 	int retorno = -1; //ERROR
 	int i;
@@ -191,13 +226,51 @@ int utn_esFlotante(char cadena[], int limite)
 	}
 	return retorno;
 }
+
+/*
+ * @fn static int esFlotante(char[], int)
+ * @brief funcion que recibe un array y un entero que es el tamaño de esa cadena
+ * recorre el array corroborando que cada indice tenga un número decimal.
+ * (Permite que tenga un punto en cualquier indice).
+ * @param cadena[] array a comparar
+ * @param limite valor del tamaño del array recibido.
+ * @return retorna: (-1) en caso de que se encuentre un error.
+ * 					(1) si es verdadero.
+ * 					(0) si es falso.
+ */
+int utn_esFlotante(char cadena[], int limite)
+{
+	int retorno = -1; //ERROR
+	int i;
+	int contadorPuntos = 0;;
+	if(cadena != NULL && limite > 0)
+	{
+		retorno = 1; // VERDADERO
+		for(i=0; (i<limite) && (cadena[i] != '\0'); i++)//no llega al límite ni pasa el \0.
+		{
+			if(cadena[i] > '9' || cadena[i] < '0')
+			{
+				if(cadena[i] == '.' && contadorPuntos == 0)
+				{
+					contadorPuntos++;
+				}
+				else
+				{
+					retorno = 0; //FALSO
+					break;
+				}
+			}
+		}
+	}
+	return retorno;
+}
 /**
  * @fn static int pedirFlotante (float* )
  * @brief funcion que toma un numero como texto para poder validar si es un numero decimal con
  * pedirCadena y corrobora si esFlotante es verdadero.
  * @param pResultado es el puntero que devuelve el numero decimal validado.
- * @return retorno que devuelve -1 si hubo error y 0 si salio bien.
- * @
+ * @return retorno que devuelve (-1) si hubo error y
+ * 								(0) si salio bien.
  */
 static int pedirFlotante (float* pResultado)
 {
@@ -223,7 +296,8 @@ static int pedirFlotante (float* pResultado)
  * @max es el maximo en caso de que el usuario tenga que ingresar numeros dentro de un rango.
  * @reintentos va a recibir el valor de la cantidad de veces que se va a poder reintentar ingresar un dato válido en caso de error.
  * @condicional se va a recibir 0 en caso de querer ignorar el rango o cualquier otro entero en caso de que no(ej:1).
- * @return retorna -1 si salio algo mal ó 0 si salio bien.
+ * @return retorna (-1) si salio algo mal.
+ * 				   (0) si salio bien.
  */
 int utn_pedirFlotante(float* pResultado, char* mensaje, char* mensajeError, float min, float max, int reintentos, int condicional)
 {
@@ -269,7 +343,9 @@ int utn_pedirFlotante(float* pResultado, char* mensaje, char* mensajeError, floa
  * recorre el array corroborando que cada indice tenga letras
  * @param cadena[] array a comparar
  * @param limite valor del tamaño del array recibido.
- * @return retorna: -1 en caso de que se encuentre un error, 1 si es verdadero y 0 si es falso.
+ * @return retorna: (-1) en caso de que se encuentre un error.
+ * 					(1) si es verdadero.
+ * 					(0) si es falso.
  */
 int utn_esAlfabetico(char cadena[], int limite)
 {
@@ -297,7 +373,8 @@ int utn_esAlfabetico(char cadena[], int limite)
  * y corrobora que no haya errores para poder copiar en cadena lo que guardo en el buffer.
  * @param cadena[] array que devuelve la palabra libre de errores
  * @param longitud valor del tamaño del array recibido.
- * @return retorna: -1 en caso de que se encuentre un error y 0 si salio bien.
+ * @return retorna: (-1) en caso de que se encuentre un error.
+ * 					(0) si salio bien.
  */
 static int pedirAlfabetico(char cadena[], int longitud) //toma el numero como un texto, valida a que sea correcta las posiciones del array y lo devuelve como int.
 {
@@ -321,14 +398,16 @@ static int pedirAlfabetico(char cadena[], int longitud) //toma el numero como un
  * @mensaje es el mensaje que pide el dato requerido.
  * @mensajeError es el mensaje en caso de que haya un error para indicarle al usuario que algo no esta bien.
  * @reintentos va a recibir el valor de la cantidad de veces que se va a poder reintentar ingresar un dato válido en caso de error.
- * @return retorna -1 si salio algo mal ó 0 si salio bien.
+ * @return retorna (-1) si salio algo mal.
+ * 				   (0) si salio bien.
  */
 int utn_pedirAlfabetico(char cadena[], int longitud, char* mensaje, char* mensajeError, int reintentos)
 {
 	int retorno = -1;
 	char buffer[200];
 	if(cadena != NULL && mensaje != NULL &&
-	   mensajeError != NULL && reintentos > 0)
+	   mensajeError != NULL && reintentos > 0
+	   && longitud > 0)
 	{
 		do
 		{
@@ -352,7 +431,9 @@ int utn_pedirAlfabetico(char cadena[], int longitud, char* mensaje, char* mensaj
  * recorre el array corroborando que cada indice tenga letras y/o espacios.
  * @param cadena[] array a comparar
  * @param limite valor del tamaño del array recibido.
- * @return retorna: -1 en caso de que se encuentre un error, 1 si es verdadero y 0 si es falso.
+ * @return retorna: (-1) en caso de que se encuentre un error.
+ * 					(1) si es verdadero.
+ * 					(0) si es falso.
  */
 int utn_esAlfabeticoEspacio(char cadena[], int limite)
 {
@@ -380,7 +461,8 @@ int utn_esAlfabeticoEspacio(char cadena[], int limite)
  * y corrobora que no haya errores para poder copiar en cadena lo que guardo en el buffer.
  * @param cadena[] array que devuelve la palabra libre de errores
  * @param longitud valor del tamaño del array recibido.
- * @return retorna: -1 en caso de que se encuentre un error y 0 si salio bien.
+ * @return retorna: (-1) en caso de que se encuentre un error.
+ * 					(0) si salio bien.
  */
 static int pedirAlfabeticoEspacio(char cadena[], int longitud) //toma el numero como un texto, valida a que sea correcta las posiciones del array y lo devuelve como int.
 {
@@ -405,14 +487,16 @@ static int pedirAlfabeticoEspacio(char cadena[], int longitud) //toma el numero 
  * @mensaje es el mensaje que pide el dato requerido.
  * @mensajeError es el mensaje en caso de que haya un error para indicarle al usuario que algo no esta bien.
  * @reintentos va a recibir el valor de la cantidad de veces que se va a poder reintentar ingresar un dato válido en caso de error.
- * @return retorna -1 si salio algo mal ó 0 si salio bien.
+ * @return retorna (-1) si salio algo mal.
+ * 				   (0) si salio bien.
  */
 int utn_pedirAlfabeticoEspacio(char cadena[], int longitud, char* mensaje, char* mensajeError, int reintentos)
 {
 	int retorno = -1;
 	char buffer[200];
 	if(cadena != NULL && mensaje != NULL &&
-	   mensajeError != NULL && reintentos > 0)
+	   mensajeError != NULL && reintentos > 0
+	   && longitud > 0)
 	{
 		do
 		{
@@ -436,7 +520,9 @@ int utn_pedirAlfabeticoEspacio(char cadena[], int longitud, char* mensaje, char*
  * recorre el array corroborando que cada indice tenga letras o números.
  * @param cadena[] array a comparar
  * @param limite valor del tamaño del array recibido.
- * @return retorna: -1 en caso de que se encuentre un error, 1 si es verdadero y 0 si es falso.
+ * @return retorna: (-1) en caso de que se encuentre un error.
+ * 					(1) si es verdadero.
+ * 					(0) si es falso.
  */
 int utn_esAlfanumerico(char cadena[], int limite)
 {
@@ -465,7 +551,8 @@ int utn_esAlfanumerico(char cadena[], int limite)
  * y corrobora que no haya errores para poder copiar en cadena lo que guardo en el buffer.
  * @param cadena[] array que devuelve la palabra libre de errores
  * @param longitud valor del tamaño del array recibido.
- * @return retorna: -1 en caso de que se encuentre un error y 0 si salio bien.
+ * @return retorna: (-1) en caso de que se encuentre un error.
+ * 					(0) si salio bien.
  */
 static int pedirAlfanumerico(char cadena[], int longitud)
 {
@@ -491,13 +578,16 @@ static int pedirAlfanumerico(char cadena[], int longitud)
  * @mensaje es el mensaje que pide el dato requerido.
  * @mensajeError es el mensaje en caso de que haya un error para indicarle al usuario que algo no esta bien.
  * @reintentos va a recibir el valor de la cantidad de veces que se va a poder reintentar ingresar un dato válido en caso de error.
- * @return retorna -1 si salio algo mal ó 0 si salio bien.
+ * @return retorna (-1) si salio algo mal.
+ * 				   (0) si salio bien.
  */
 int utn_pedirAlfanumerico(char cadena[], int longitud, char* mensaje, char* mensajeError, int reintentos)
 {
 	int retorno = -1;
 	char buffer[500];
-	if(cadena != NULL && mensaje != NULL && mensajeError != NULL && reintentos > 0)
+	if(cadena != NULL && mensaje != NULL &&
+	   mensajeError != NULL && reintentos > 0
+	   && longitud > 0)
 	{
 		do
 		{
@@ -523,7 +613,9 @@ int utn_pedirAlfanumerico(char cadena[], int longitud, char* mensaje, char* mens
  * recorre el array corroborando que cada indice tenga letra, espacio o número.
  * @param cadena[] array a comparar
  * @param limite valor del tamaño del array recibido.
- * @return retorna: -1 en caso de que se encuentre un error, 1 si es verdadero y 0 si es falso.
+ * @return retorna: (-1) en caso de que se encuentre un error.
+ * 					(1) si es verdadero.
+ * 					(0) si es falso.
  */
 int utn_esAlfanumericoEspacio(char cadena[], int limite)
 {
@@ -553,7 +645,8 @@ int utn_esAlfanumericoEspacio(char cadena[], int limite)
  * y corrobora que no haya errores para poder copiar en cadena lo que guardo en el buffer.
  * @param cadena[] array que devuelve la palabra libre de errores
  * @param longitud valor del tamaño del array recibido.
- * @return retorna: -1 en caso de que se encuentre un error y 0 si salio bien.
+ * @return retorna: (-1) en caso de que se encuentre un error.
+ *  				(0) si salio bien.
  */
 static int pedirAlfanumericoEspacio(char cadena[], int longitud)
 {
@@ -579,13 +672,16 @@ static int pedirAlfanumericoEspacio(char cadena[], int longitud)
  * @mensaje es el mensaje que pide el dato requerido.
  * @mensajeError es el mensaje en caso de que haya un error para indicarle al usuario que algo no esta bien.
  * @reintentos va a recibir el valor de la cantidad de veces que se va a poder reintentar ingresar un dato válido en caso de error.
- * @return retorna -1 si salio algo mal ó 0 si salio bien.
+ * @return retorna (-1) si salio algo mal.
+ * 				   (0) si salio bien.
  */
 int utn_pedirAlfanumericoEspacio(char cadena[], int longitud, char* mensaje, char* mensajeError, int reintentos)
 {
 	int retorno = -1;
 	char buffer[500];
-	if(cadena != NULL && mensaje != NULL && mensajeError != NULL && reintentos > 0)
+	if(cadena != NULL && mensaje != NULL &&
+	   mensajeError != NULL && reintentos > 0
+	   && longitud > 0)
 	{
 		do
 		{
@@ -610,7 +706,9 @@ int utn_pedirAlfanumericoEspacio(char cadena[], int longitud, char* mensaje, cha
  * recorre el array corroborando que tenga una s-S-n-N
  * @param cadena[] array a comparar
  * @param limite valor del tamaño del array recibido.
- * @return retorna: -1 en caso de que se encuentre un error, 1 si es no y 0 si es si.
+ * @return retorna: (-1) en caso de que se encuentre un error.
+ * 					(1) si es no.
+ * 					(0) si es si.
  */
 static int esVerificable(char cadena[], int limite)
 {
@@ -639,7 +737,8 @@ static int esVerificable(char cadena[], int limite)
  * y corrobora que no haya errores para poder copiar en cadena lo que guardo en el buffer.
  * @param cadena[] array que devuelve la palabra libre de errores
  * @param longitud valor del tamaño del array recibido.
- * @return retorna: -1 en caso de que se encuentre un error y 0 si salio bien.
+ * @return retorna: (-1) en caso de que se encuentre un error.
+ * 					(0) si salio bien.
  */
 static int verificar(char cadena[], int longitud)
 {
@@ -666,7 +765,9 @@ static int verificar(char cadena[], int longitud)
  * @mensaje es el mensaje que pide el dato requerido.
  * @mensajeError es el mensaje en caso de que haya un error para indicarle al usuario que algo no esta bien.
  * @reintentos va a recibir el valor de la cantidad de veces que se va a poder reintentar ingresar un dato válido en caso de error.
- * @return retorna -1 si salio algo mal ó 0 si la respuesta fue si o 1 si fue no.
+ * @return retorna (-1) si salio algo mal.
+ * 					(0) si la respuesta fue si.
+ * 					(1) si fue no.
  */
 int utn_verificar(char* mensaje, char* mensajeError, int reintentos)
 {

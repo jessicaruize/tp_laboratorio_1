@@ -6,6 +6,7 @@
 C_SRCS += \
 ../Controller.c \
 ../Employee.c \
+../Menu.c \
 ../main.c \
 ../parser.c \
 ../pedir_valores.c 
@@ -13,6 +14,7 @@ C_SRCS += \
 OBJS += \
 ./Controller.o \
 ./Employee.o \
+./Menu.o \
 ./main.o \
 ./parser.o \
 ./pedir_valores.o 
@@ -20,6 +22,7 @@ OBJS += \
 C_DEPS += \
 ./Controller.d \
 ./Employee.d \
+./Menu.d \
 ./main.d \
 ./parser.d \
 ./pedir_valores.d 

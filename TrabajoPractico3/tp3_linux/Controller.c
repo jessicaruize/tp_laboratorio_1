@@ -5,16 +5,19 @@
 #include "Employee.h"
 #include "parser.h"
 #include "pedir_valores.h"
-
-
-/** \brief Carga los datos de los empleados desde el archivo data.csv (modo texto).
+#include "Menu.h"
+#include "Controller.h"
+static int idIncremental;
+//******************************CARGAR DESDE LOS ARCHIVOS(TEXTO-BINARIO)******************************
+/** \brief Carga los datos de los empleados desde el archivo modo texto.
  *
- * \param path char*
- * \param pArrayListEmployee LinkedList*
- * \return int
- *
+ * \param path char* nombre del archivo
+ * \param pArrayListEmployee LinkedList* puntero a la lista.
+ * \return int retorna (0) si los datos fueron cargados con exito.
+ * 					   (-1) en caso de error.
+ * 					   (-2) si la operacion fue cancelada.
+ * 					   (-3) si no se pude abrir el archivo o no existe.
  */
-//1. Cargar los datos de los empleados desde el archivo data.csv (modo texto).
 int controller_loadFromText(char* path , LinkedList* pArrayListEmployee)
 {
 	int retorno = -1;//Error.
@@ -25,41 +28,37 @@ int controller_loadFromText(char* path , LinkedList* pArrayListEmployee)
 		pFile = fopen(path, "r");
 		if(pFile != NULL)
 		{
-			if(!ll_isEmpty(pArrayListEmployee))//devuelve 1 lista vacia- 0 si no esta vacia
+			continuar = parser_EmployeeFromText(pFile, pArrayListEmployee);
+			if(!continuar)
 			{
-				printf("Ya se ha cargado la lista o hay datos en ella, si continua perdera los datos ya guardados.");
-				if(utn_verificar("¿Desea continuar? [s/n]", "Error.", 2) == 1) //1=no
-				{
-					continuar = 0;
-					retorno = -2; //operación cancelada.
-				}
+				retorno = 0; //datos cargados con exito.
 			}
-			if(continuar)
+			else
 			{
-				ll_clear(pArrayListEmployee);
-				if(!parser_EmployeeFromText(pFile, pArrayListEmployee))
+				if(continuar == -2)
 				{
-					retorno = 0; //datos cargados con exito.
+					retorno = -2; // Operacion cancelada.
 				}
 			}
 			fclose(pFile);
 		}
 		else
 		{
-			retorno = -3; //No existe el archivo
+			retorno = -3; //Error al abrir el archivo
 		}
 	}
 	return retorno;
 }
 
-/** \brief Carga los datos de los empleados desde el archivo data.csv (modo binario).
+/** \brief Carga los datos de los empleados desde archivo modo binario.
  *
- * \param path char*
- * \param pArrayListEmployee LinkedList*
- * \return int
- *
+ * \param path char* nombre del archivo
+ * \param pArrayListEmployee LinkedList* puntero a la lista.
+ * \return int retorna (0) si los datos fueron cargados con exito.
+ * 					   (-1) en caso de error.
+ * 					   (-2) si la operacion fue cancelada.
+ * 					   (-3) si no se pude abrir el archivo o no existe.
  */
-//2. Cargar los datos de los empleados desde el archivo data.csv (modo binario).
 int controller_loadFromBinary(char* path , LinkedList* pArrayListEmployee)
 {
 	int retorno = -1;//Error.
@@ -70,71 +69,56 @@ int controller_loadFromBinary(char* path , LinkedList* pArrayListEmployee)
 		pFile = fopen(path, "rb");
 		if(pFile != NULL)
 		{
-			if(!ll_isEmpty(pArrayListEmployee))//devuelve 1 lista vacia- 0 si no esta vacia
+			continuar = parser_EmployeeFromBinary(pFile, pArrayListEmployee);
+			if(!continuar)
 			{
-				printf("Ya se ha cargado la lista o hay datos en ella, si continua perdera los datos ya guardados.");
-				if(utn_verificar("¿Desea continuar? [s/n]", "Error.", 2) == 1)
-				{
-					continuar = 0;
-					retorno = -2; //operación cancelada.
-				}
+				retorno = 0; //datos cargados con exito.
 			}
-			if(continuar)
+			else
 			{
-				ll_clear(pArrayListEmployee);
-				if(!parser_EmployeeFromBinary(pFile, pArrayListEmployee))
+				if(continuar == -2)
 				{
-					retorno = 0; //datos cargados con exito.
+					retorno = -2; // Operacion cancelada.
 				}
 			}
 			fclose(pFile);
 		}
 		else
 		{
-			retorno = -3; //No existe el archivo
+			retorno = -3; //Error al abrir el archivo
 		}
 	}
 	return retorno;
 }
-
+//**********************************ALTA - MODIFICACION - BAJA(ABM)***********************************
 /** \brief Alta de empleados
- *
- * \param path char*
- * \param pArrayListEmployee LinkedList*
- * \return int
- *
+ * \param pArrayListEmployee LinkedList*  puntero a la lista.
+ * \return int (0) operacion realizada con exito.
+ * 			   (-1) error al realizar la operación.
+ * 			   (-2) operacion cancelada.
  */
-// 3. Alta de empleado
 int controller_addEmployee(LinkedList* pArrayListEmployee)
 {
 	int retorno = -1; //Error
-	int idMaximo;
 	Employee* empleado;
-	char nombre[TAM_NOMBRE];
-	int sueldo;
-	int horasTrabajadas;
-	idMaximo = controller_buscarIdMaximo(pArrayListEmployee);
-	idMaximo ++;
 	if(pArrayListEmployee != NULL)
 	{
-		empleado =employee_new();
+		empleado = employee_new();
 		if(empleado != NULL)
 		{
-			if(!utn_pedirAlfabetico(nombre, TAM_NOMBRE, "Ingrese el nombre del empleado", "Error.", 2) &&
-			!utn_pedirEntero(&horasTrabajadas, "Ingrese las horas trabajadas del empleado.", "Error.", 0, 300, 2, 1) &&
-			!utn_pedirEntero(&sueldo, "Ingrese el sueldo del empleado.", "Error.", 0, 1000000, 2, 1) &&
-			!employee_setId(empleado, idMaximo) &&
-			!employee_setNombre(empleado, nombre) &&
-			!employee_setHorasTrabajadas(empleado, horasTrabajadas) &&
-			!employee_setSueldo(empleado, sueldo))
+			idIncremental ++;
+			if(!employee_setId(empleado, idIncremental) &&
+			   !Employee_cargarDatos(empleado))
 			{
-				if(!utn_verificar("¿Desea guardar los datos?", "Error.", 2))
+				if(!utn_verificar("¿Desea guardar los datos? ", "Error, ingrese [s/n].\n", 2))
 				{
 					if(!ll_add(pArrayListEmployee, empleado))
 					{
 						retorno = 0; // salio bien.
-						puts("\nEmpleado cargado: ");
-						printf("ID: %d \t Nombre: %s \t Hs.Trabajadas: %d \t Sueldo: %d\n", (*empleado).id, (*empleado).nombre, (*empleado).horasTrabajadas, (*empleado).sueldo);
+						puts("Empleado cargado: ");
+						puts("\n\tID\t   NOMBRE\t   HS. TRABAJADAS\t SUELDO");
+						employee_mostrarUno(empleado);
+						puts("");
 					}
 				}
 				else
@@ -148,352 +132,524 @@ int controller_addEmployee(LinkedList* pArrayListEmployee)
 }
 
 /** \brief Modificar datos de empleado
- *
- * \param path char*
- * \param pArrayListEmployee LinkedList*
- * \return int
- *
+ * \param pArrayListEmployee LinkedList*  puntero a la lista.
+ * \return int. (0) operacion realizada con exito.
+ * 				(-1) Error al realizar la operación.
+ * 				(-2) ID invalido.
+ * 				(-3) ID mal ingresado.
+ * 				(-4) No hay elementos para editar.
  */
-int controller_editEmployee(LinkedList* pArrayListEmployee) //usar func ll_set
-{
-	int retorno = -1;
-	int respuesta;
-	int id;
-	int idMax;
-	int indice;
-	Employee* empleado;
-	char nombre[TAM_NOMBRE];
-	int hsTrabajadas;
-	int sueldo;
-	if(pArrayListEmployee != NULL)
-	{
-		idMax = controller_buscarIdMaximo(pArrayListEmployee);
-		controller_ListEmployee(pArrayListEmployee);
-		if(!utn_pedirEntero(&id, "Ingrese el ID del empleado que desea editar.", "Error", 0, idMax, 2, 1))
-		{
-			indice = controller_buscarPorId(pArrayListEmployee, id);
-			if(indice > -1)
-			{
-				empleado = ll_get(pArrayListEmployee, indice);
-				do
-				{
-					printf("\nEmpleado seleccionado: %d,%s,%d,%d\n", (*empleado).id, (*empleado).nombre, (*empleado).horasTrabajadas, (*empleado).sueldo);
-					puts("\nEDITAR: \n1_Nombre.\n2_Horas trabajadas.\n3_Sueldo.\n4_Salir");
-					if(!utn_pedirEntero(&respuesta, "Ingrese el número correspondiente al dato que desea realizar.", "Error", 1, 4, 2, 1))
-					{
-						switch(respuesta)
-						{
-							case 1:
-								utn_pedirAlfabetico(nombre, TAM_NOMBRE, "Ingrese el nombre:", "Error.", 2);
-								if(!utn_verificar("¿Desea guardar los cambios?", "Error", 2))
-								{
-									employee_setNombre(empleado, nombre);
-								}
-								break;
-							case 2:
-								utn_pedirEntero(&hsTrabajadas, "Ingrese las horas trabajadas:", "Error", 0, 300, 2, 1);
-								if(!utn_verificar("¿Desea guardar los cambios?", "Error", 2))
-								{
-									employee_setHorasTrabajadas(empleado, hsTrabajadas);
-								}
-								break;
-							case 3:
-								utn_pedirEntero(&sueldo, "Ingrese el sueldo:", "Error.", 0, 1000000, 2, 1);
-								if(!utn_verificar("¿Desea guardar los cambios?", "Error", 2))
-								{
-									employee_setSueldo(empleado, sueldo);
-								}
-								break;
-							case 4:
-								puts("El empleado elegido se guardara con estos datos: ");
-								printf("%d,%s,%d,%d\n", (*empleado).id, (*empleado).nombre, (*empleado).horasTrabajadas, (*empleado).sueldo);
-								if(!utn_verificar("¿Desea cambiar algún dato?", "Error.", 2))
-								{
-									respuesta = 1;
-								}
-								break;
-						}
-					}
-				}while(respuesta != 4);
-				retorno = 0;
-			}
-		}
-		else
-		{
-			retorno = -2;
-			//ID invalido
-		}
-	}
-    return retorno;
-}
-
-/** \brief Baja de empleado
- *
- * \param path char*
- * \param pArrayListEmployee LinkedList*
- * \return int
- *
- */
-int controller_removeEmployee(LinkedList* pArrayListEmployee)
+int controller_editEmployee(LinkedList* pArrayListEmployee)
 {
 	int retorno = -1; //Error.
-	int idMax;
 	int id;
 	int indice;
 	Employee* empleado;
 	if(pArrayListEmployee != NULL)
 	{
-		idMax = controller_buscarIdMaximo(pArrayListEmployee);
-		controller_ListEmployee(pArrayListEmployee);
-		if(!utn_pedirEntero(&id, "Ingrese el ID del empleado que desea eliminar.", "Error", 0, idMax, 2, 1))
+		if(!ll_isEmpty(pArrayListEmployee))
 		{
-			indice = controller_buscarPorId(pArrayListEmployee, id);
-			if(indice > -1)
+			ll_sort(pArrayListEmployee, employee_compareBbyName, 1);
+			puts("\n\n*************************LISTA ALFABETICA DE EMPLEADOS [A-Z]*************************");
+			controller_mostrarTodos(pArrayListEmployee);
+			puts("\n\n***********************************FIN DE LA LISTA***********************************");
+			if(!utn_pedirEntero(&id, "Ingrese el ID del empleado que desea editar: ", "Error\n", 0, 0, 2, 0))
 			{
-				empleado = ll_pop(pArrayListEmployee, indice);
-				printf("%d,%s,%d,%d\n", (*empleado).id, (*empleado).nombre, (*empleado).horasTrabajadas, (*empleado).sueldo);
-				if(!utn_verificar("¿Desea eliminar al empleado?", "Error", 2))
+				indice = controller_buscarPorId(pArrayListEmployee, id);
+				if(indice > -1)
 				{
-					if(!employee_delete(empleado))
+					empleado = ll_get(pArrayListEmployee, indice);
+					if(!employee_editEmployee(empleado))
 					{
-						retorno = 0;//empleado eliminado
+						retorno = 0;
+						puts("Empleado guardado: \n");
+						puts("\n\tID\t   NOMBRE\t   HS. TRABAJADAS\t SUELDO");
+						employee_mostrarUno(empleado);
+						puts("");
 					}
 				}
 				else
 				{
-					ll_push(pArrayListEmployee, indice, empleado);
-					retorno = -2; //operacion cancelada
+					if(indice == -2)
+					{
+						retorno = -2; //id invalido.
+					}
 				}
+			}
+			else
+			{
+				retorno = -3; // dato mal ingresado
 			}
 		}
 		else
 		{
-			retorno = -3;//ID no existe.
+			retorno = -4;// No hay elementos para editar.
 		}
 	}
     return retorno;
 }
 
-/** \brief Listar empleados
- *
- * \param path char*
- * \param pArrayListEmployee LinkedList*
- * \return int
- *
+/** \brief elimina empleado
+ * \param pArrayListEmployee LinkedList*  puntero a la lista.
+ * \return int. (0) operacion realizada con exito.
+ * 				(-1) Error al realizar la operación.
+ * 				(-2) operacion cancelada.
+ * 				(-3) ID no existe.
+ * 				(-4) ID mal ingresado.
+ * 				(-5) No hay elementos para eliminar.
  */
-int controller_ListEmployee(LinkedList* pArrayListEmployee)//crear funciones mostrar todos, mostrar 1. ll_set para mostrar
+int controller_removeEmployee(LinkedList* pArrayListEmployee)
 {
-	int retorno = -1;
-	int i;
-	int j;
+	int retorno = -1; //Error.
+	int id;
+	int indice;
 	Employee* empleado;
 	if(pArrayListEmployee != NULL)
 	{
-		i = ll_len(pArrayListEmployee);
-		printf("ID, nombre, horas trabajadas, sueldo\n");
-		for(j=0; j<i+1; j++)
+		if(!ll_isEmpty(pArrayListEmployee))
 		{
-			empleado = ll_get(pArrayListEmployee, j);
-			if(empleado != NULL)
+			ll_sort(pArrayListEmployee, employee_compareBbyName, 1);
+			puts("\n\n*************************LISTA ALFABETICA DE EMPLEADOS [A-Z]*************************");
+			controller_mostrarTodos(pArrayListEmployee);
+			puts("\n\n***********************************FIN DE LA LISTA***********************************");
+			if(!utn_pedirEntero(&id, "Ingrese el ID del empleado que desea eliminar: ", "Error.\n", 0, 0, 2, 0))
 			{
-				retorno = 0;
-				printf("%d,%s,%d,%d\n", (*empleado).id, (*empleado).nombre, (*empleado).horasTrabajadas, (*empleado).sueldo);
+				indice = controller_buscarPorId(pArrayListEmployee, id);
+				if(indice > -1)
+				{
+
+					empleado = ll_get(pArrayListEmployee, indice);
+					puts("Empleado a eliminar: ");
+					puts("\n\tID\t   NOMBRE\t   HS. TRABAJADAS\t SUELDO");
+					employee_mostrarUno(empleado);
+					puts("");
+					if(!utn_verificar("¿Desea confirmar la operación? ", "Error, ingrese [s/n]\n", 2))
+					{
+						if(!ll_remove(pArrayListEmployee, indice) &&
+						   !employee_delete(empleado))
+						{
+							retorno = 0;//empleado eliminado
+						}
+					}
+					else
+					{
+						ll_push(pArrayListEmployee, indice, empleado);
+						retorno = -2; //operacion cancelada
+					}
+				}
+				else
+				{
+					if(indice == -2)
+					{
+						retorno = -3; //ID no existe.
+					}
+				}
+			}
+			else
+			{
+				retorno = -4;//ID mal ingresado.
 			}
 		}
+		else
+		{
+			retorno = -5; // no hay empleado el la lista para eliminar.
+		}
+	}
+    return retorno;
+}
+//*****************************************LISTAR EMPLEADOS*******************************************
+/** \brief Listar empleados
+ * \param pArrayListEmployee LinkedList* puntero a la lista
+ * \return int. (0) operacion realizada con exito.
+ * 				(1) No hay elementos para listar.
+ * 				(-1) Error
+ */
+int controller_ListEmployee(LinkedList* pArrayListEmployee)
+{
+	int retorno = -1; // error
+	if(pArrayListEmployee != NULL)
+	{
+		puts("\n\n*********************************INICIO DE LA LISTA***********************************");
+		retorno = controller_mostrarTodos(pArrayListEmployee);
+		puts("\n\n***********************************FIN DE LA LISTA***********************************");
 	}
     return retorno;
 }
 
 /** \brief Ordenar empleados
- *
- * \param path char*
- * \param pArrayListEmployee LinkedList*
- * \return int
- *
+ * \param pArrayListEmployee LinkedList* puntero a la lista
+ * \return int  (0) Operacion realizada con exito.
+ * 				(-1) Error.
+ * 				(-2) error al ingresar las opciones del menu.
+ * 				(-3) lista vacia.
  */
 int controller_sortEmployee(LinkedList* pArrayListEmployee)
 {
 	int retorno = -1;
-	LinkedList* clone;
+	int opcion;
+	int criterio;
+	int respuesta;
 	if(pArrayListEmployee != NULL)
 	{
-		clone = ll_clone(pArrayListEmployee);
-		ll_sort(clone, employee_compareBbyName, 1);
-		puts("Lista ordenada por nombre: ");
-		//crear funcion mostrar todos.
-		ll_sort(clone, employee_compareBbyId, 1);
-		puts("Lista ordenada por ID: ");
-		//mostrar .
-		retorno = 0;
+		respuesta = ll_isEmpty(pArrayListEmployee);
+		if(!respuesta)
+		{
+			do
+			{
+				respuesta = menu_sort(&opcion, &criterio);
+				if(!respuesta)
+				{
 
+					switch(opcion)
+					{
+						case 1:
+							retorno =ll_sort(pArrayListEmployee, employee_compareBbyName, criterio);
+						break;
+						case 2:
+							retorno = ll_sort(pArrayListEmployee, employee_compareBbyId, criterio);
+							break;
+						case 3:
+							retorno = ll_sort(pArrayListEmployee, employee_compareBbyHoras, criterio);
+						break;
+						case 4:
+							retorno = ll_sort(pArrayListEmployee, employee_compareBbySueldo, criterio);
+						break;
+						case 5:
+							retorno = 0;
+							break;
+					}
+					if(opcion != 5)
+					{
+						puts("\n\n***********************************LISTA ORDENADA************************************");
+						controller_mostrarTodos(pArrayListEmployee);
+						puts("\n\n***********************************FIN DE LA LISTA***********************************");
+					}
+				}
+				else
+				{
+					if(respuesta == -2)
+					{
+						retorno = -2; //error al ingreesar las opciones del menu.
+					}
+				}
+			}while(opcion != 5);
+		}
+		else
+		{
+			if(respuesta == 1)
+			{
+				retorno = -3; //lista vacia.
+			}
+		}
 	}
     return retorno;
 }
-
-/** \brief Guarda los datos de los empleados en el archivo data.csv (modo texto).
- *
- * \param path char*
- * \param pArrayListEmployee LinkedList*
- * \return int
- *
+//*********************************GUARDAR EN ARCHIVOS (TEXTO-BINARIO)********************************
+/** \brief Guarda los datos de los empleados en el archivo modo texto.
+ * \param path char* nombre del archivo
+ * \param pArrayListEmployee LinkedList* puntero a la lista.
+ * \return int  (0) operacion realizada con exito.
+ * 				(-1) error
+ * 				(-2) copia defectuosa.
+ * 				(-3) operacion cancelada.
+ * 				(-4) lista vacia.
  */
 int controller_saveAsText(char* path , LinkedList* pArrayListEmployee)
 {
-	int retorno = -1;
+	int retorno = -1; //Error.
 	FILE* pFile;
-	int i;
-	int cantidad;
-	Employee* empleado;
-	int id;
-	int hsTrabajadas;
-	int sueldo;
-	char nombre[TAM_NOMBRE];
 	if(path != NULL && pArrayListEmployee != NULL)
 	{
-		cantidad = ll_len(pArrayListEmployee);
-		pFile = fopen(path,"w");
-		if(pFile != NULL)
+		if(!ll_isEmpty(pArrayListEmployee))
 		{
-			retorno = 0;
-			fprintf(pFile, "ID, nombre, horas trabajadas, sueldo\n");
-			for(i=0; i<cantidad+1; i++)
+			ll_sort(pArrayListEmployee, employee_compareBbyName, 1);
+			puts("\n\n*********************************INICIO DE LA LISTA***********************************");
+			puts("\tEmpleados en la lista: ");
+			controller_mostrarTodos(pArrayListEmployee);
+			puts("\n\n***********************************FIN DE LA LISTA***********************************");
+			if(!utn_verificar("¿Esta seguro de guardar la lista mostrada en el archivo de texto? ", "Error , ingrese [s/n]\n", 2))
 			{
-				empleado = ll_get(pArrayListEmployee, i);//hacerfuncion.--------------Guardarentexto-----------------------------------------------------------------------------------------
-				if(!employee_getId(empleado, &id) &&
-				   !employee_getNombre(empleado, nombre) &&
-				   !employee_getHorasTrabajadas(empleado, &hsTrabajadas) &&
-				   !employee_getSueldo(empleado, &sueldo))
-
-				if(fprintf(pFile,"%d,%s,%d,%d\n", id, nombre, hsTrabajadas, sueldo)<4)
-				{
-
-						retorno = -2; //copia defectuosa.
-						break;
-				}
-					printf("%d,%s,%d,%d\n", id, nombre, hsTrabajadas, sueldo);
-
+				pFile = fopen(path,"w");
+				retorno = parser_EmployeeSaveAsText(pArrayListEmployee, pFile); // 0 ok - -2 copia defectuosa - -1error
+				fclose(pFile);
 			}
-			fclose(pFile);
+			else
+			{
+				retorno = -3; //operacion cancelada
+			}
+		}
+		else
+		{
+			retorno = -4; // lista vacia.
 		}
 	}
     return retorno;
 }
 
-/** \brief Guarda los datos de los empleados en el archivo data.csv (modo binario).
- *
- * \param path char*
- * \param pArrayListEmployee LinkedList*
- * \return int
- *
+/** \brief Guarda los datos de los empleados en el archivo modo binario.
+ * \param path char* nombre del archivo
+ * \param pArrayListEmployee LinkedList* puntero a la lista
+ * \return int  (0) operacion realizada con exito.
+ * 				(-1) error
+ * 				(-2) copia defectuosa.
+ * 				(-3) operacion cancelada.
+ * 				(-4) lista vacia.
  */
 int controller_saveAsBinary(char* path , LinkedList* pArrayListEmployee)
 {
 	int retorno = -1;
 	FILE* pFile;
-	int i;
-	int cantidad;
-	int cantidadEscrita;
-	Employee* empleado;
 	if(path != NULL && pArrayListEmployee != NULL)
 	{
-		//if(!ll_isEmpty(pArrayListEmployee))
-		//{
-			pFile = fopen(path,"wb");
-			if(pFile != NULL)
+		if(!ll_isEmpty(pArrayListEmployee))
+		{
+			ll_sort(pArrayListEmployee, employee_compareBbyName, 1);
+			puts("\n\n*********************************INICIO DE LA LISTA***********************************");
+			puts("\tEmpleados en la lista: ");
+			controller_mostrarTodos(pArrayListEmployee);
+			puts("\n\n***********************************FIN DE LA LISTA***********************************");
+			if(!utn_verificar("¿Esta seguro de guardar la lista mostrada en el archivo binario? ", "Error, ingrese [s/n]\n", 2))
 			{
-				retorno = 0;
-				cantidad = ll_len(pArrayListEmployee);
-				fprintf(pFile, "ID, nombre, horas trabajadas, sueldo");
-				for(i=0; i<cantidad+1; i++)
+				pFile = fopen(path,"wb");
+				if(pFile != NULL)
 				{
-					empleado = ll_get(pArrayListEmployee, i);
-					fwrite(empleado, sizeof(Employee), 1, pFile);
-					if(cantidadEscrita < 1)
-					{
-						retorno = -3;//copia mala
-						break;
-					}
+					retorno = parser_EmployeeSaveAsBinary(pArrayListEmployee, pFile); // 0 ok - -2 copia defectuosa - -1 error
+					fclose(pFile);
 				}
-				fclose(pFile);
 			}
-		//}
-		/*else
-		{
-			retorno = -2;//lista vacia.
-		}*/
-	}
-	printf("retorno %d", retorno);
-    return retorno;
-}
-
-int controller_menu(int* opcion)
-{
-	int retorno = -1;
-	if(opcion != NULL)
-	{
-		puts("MENU:");
-		puts("1. Cargar los datos de los empleados desde el archivo data.csv (modo texto).");
-		puts("2. Cargar los datos de los empleados desde el archivo data.csv (modo binario).");
-		puts("3. Alta de empleado.");
-		puts("4. Modificar datos de empleado.");
-		puts("5. Baja de empleado.");
-		puts("6. Listar empleados.");
-		puts("7. Ordenar empleados.");
-		puts("8. Guardar los datos de los empleados en el archivo datatxt.csv (modo texto).");
-		puts("9. Guardar los datos de los empleados en el archivo data.bin (modo binario).");
-		puts("10. Salir.");
-		if(!utn_pedirEntero(opcion, "Ingrese una opción.", "Error.", 1, 10, 2, 1))
-		{
-			retorno = 0;
+			else
+			{
+				retorno = -3; //operacion cancelada
+			}
 		}
 		else
 		{
-			puts("Ingreso un número errroneo.");
+			retorno = -4; // lista vacia.
 		}
 	}
-	return retorno;
+    return retorno;
 }
-
-//devuelve el indice del empleado que tiene el id pasado por parametro o -1 en caso de error
+//****************************************************************************************************
+/** \brief devuelve el indice del elemento buscandolo por el id.
+ * \param pArrayListEmployee LinkedList* puntero a la lista.
+ * \return int  (>-1) si devuelve el indice.
+ * 				(-1) error
+ * 				(-2) no se encontro el ID.
+ */
 int controller_buscarPorId(LinkedList* pArrayListEmployee, int id)
 {
 	int retorno = -1;
 	int i;
 	Employee* empleado;
+	int cantidad;
+	int idEmpleado;
 	if(pArrayListEmployee != NULL)
 	{
-		for(i=0; i<ll_len(pArrayListEmployee)+1; i++)
+		cantidad = ll_len(pArrayListEmployee);
+		for(i=0; i<cantidad; i++)
 		{
 			empleado = ll_get(pArrayListEmployee, i);
-			if((*empleado).id == id)
+			employee_getId(empleado, &idEmpleado);
+			if(idEmpleado == id)
 			{
-				retorno = i;//mayor que -1 si lo  encontro;
+				retorno = i;//mayor que -1 si lo  encontro; retorna el indice.
 				break;
+			}
+			else
+			{
+				retorno = -2;//no se encontro  ID;
 			}
 		}
 	}
 	return retorno;
 }
-
-//devuelve el id maximo o -1 en caso de error.
+/** \brief devuelve el id maximo encontrado en la lista.
+ * \param pArrayListEmployee LinkedList* puntero a la lista.
+ * \return int  (-1) error.
+ * 				(>-1) si devuelve el id maximo.
+ * 				(-1) error
+ * 				(-2) no se encontro el ID.
+ */
 int controller_buscarIdMaximo(LinkedList* pArrayListEmployee)
 {
 	int i;
 	Employee* empleado;
 	int bandera = 0;
 	int idMax = -1;
+	int cantidad;
+	int id;
 	if(pArrayListEmployee != NULL)
 	{
-		for(i=0; i<ll_len(pArrayListEmployee); i++)
+		cantidad = ll_len(pArrayListEmployee);
+		for(i=0; i<cantidad; i++)
 		{
 			empleado = ll_get(pArrayListEmployee, i);
-			if(bandera == 0 || (*empleado).id > idMax)
+			employee_getId(empleado, &id);
+			if(bandera == 0 || id > idMax)
 			{
 				bandera = -1;
-				idMax = (*empleado).id;
+				idMax = id;
 			}
 		}
 	}
 	return idMax;
 }
-
+/** \brief lista todos los elementos de la lista.
+ * \param pArrayListEmployee LinkedList* puntero a la lista.
+ * \return int (-1) error.
+ * 				(0) operación realizada con exito
+ * 				(1) no hay elementos para lista
+ */
+int controller_mostrarTodos(LinkedList* pArrayListEmployee)
+{
+	int retorno = -1;
+	int cantidad;
+	int i;
+	Employee* empleado;
+	if(pArrayListEmployee != NULL)
+	{
+		if(!ll_isEmpty(pArrayListEmployee))
+		{
+			cantidad= ll_len(pArrayListEmployee);
+			puts("\n\tID\t   NOMBRE\t   HS. TRABAJADAS\t SUELDO");
+			for(i=0; i<cantidad; i++)
+			{
+				empleado = ll_get(pArrayListEmployee, i);
+				employee_mostrarUno(empleado);
+			}
+			printf("\n\t\tCantidad empleados: %d\n", cantidad);
+			retorno = 0;
+		}
+		else
+		{
+			retorno = 1; //no hay elementos para listar.
+		}
+	}
+	return retorno;
+}
+/** \brief Corrobora si la lista esta vacia y si no lo esta realiza la opcion elegida por el usuario (borrarla o mantenerla).
+ * \param pArrayListEmployee LinkedList* puntero a la lista.
+ * \return int  (-1) error
+ * 				(0) operacion realizada con exito.
+ */
+int controller_listaVacia(LinkedList* pArrayListEmployee)
+{
+	int retorno = -1; //error.
+	int opcion;
+	int cantidadElementos;
+	int i;
+	Employee* empleado;
+	if(pArrayListEmployee != NULL)
+	{
+		if(!ll_isEmpty(pArrayListEmployee))//devuelve 1 lista vacia- 0 si no esta vacia
+		{
+			puts("\n\n*********************************INICIO DE LA LISTA***********************************");
+			controller_mostrarTodos(pArrayListEmployee);
+			puts("\n\n***********************************FIN DE LA LISTA***********************************");
+			if(!menu_listNotEmpty(&opcion))
+			{
+				switch(opcion)
+				{
+					case 1:
+						retorno = 0;
+					break;
+					case 2:
+						cantidadElementos = ll_len(pArrayListEmployee);
+						for(i=0; i<cantidadElementos; i++)
+						{
+							empleado = ll_get(pArrayListEmployee, i);
+							if(empleado != NULL && !ll_remove(pArrayListEmployee, i) &&
+							 !employee_delete(empleado))
+							{
+								retorno = 0;
+							}
+						}
+					break;
+					case 3:
+						do{
+							i= 0;
+							if(!controller_removeEmployee(pArrayListEmployee))
+							{
+								if(utn_verificar("¿Desea eliminar otro empleado?", "Error.\n", 2) == 1)
+								{
+									i = 1;
+								}
+							}
+						}while(!i);
+						retorno = 0;
+					break;
+				}
+			}
+		}
+		else
+		{
+			retorno = 0;
+		}
+	}
+	return retorno;
+}
+//**************************************CONTROLAR ID***************************************************
+/** \brief escribe un archivo en modo binario el ultimo id
+ * \param numero. numero que va a ser escrito en el archivo
+ * \return int (-1) error.
+ * 			   (0) operacion realizada con exito.
+ */
+int controller_saveLastID(int numero)
+{
+	int retorno = -1;
+	int* idMax;
+	FILE* pFile;
+	idMax = (int*)malloc(sizeof(int));
+	pFile = fopen("ultimoID.bin", "wb");
+	if(pFile != NULL && idMax != NULL)
+	{
+		*idMax = numero;
+		fwrite(idMax, sizeof(int), 1, pFile);
+		fclose(pFile);
+		retorno = 0;
+	}
+	free(idMax);
+	return retorno;
+}
+/** \brief lee un archivo en modo binario que guarda el ultimo id y se lo copia a idIncremental.
+ * \return int (-1) error.
+ * 			   (0) operacion realizada con exito.
+ */
+int controller_loadId()
+{
+	int retorno = -1;
+	int* idMax;
+	FILE* pFile;
+	idMax = (int*)malloc(sizeof(int));
+	pFile = fopen("ultimoID.bin", "rb");
+	if(pFile != NULL && idMax != NULL)
+	{
+		fread(idMax, sizeof(int), 1, pFile);
+		fclose(pFile);
+		idIncremental = *idMax;
+		free(idMax);
+		retorno = 0;
+	}
+	return retorno;
+}
+/** \brief escribe en un archivo en modo binario el ultimo id
+ * \return int (-1) error.
+ * 			   (0) operacion realizada con exito.
+ */
+int controller_saveID()
+{
+	int retorno = -1;
+	int* idMax;
+	FILE* pFile;
+	idMax = (int*)malloc(sizeof(int));
+	*idMax = idIncremental;
+	pFile = fopen("ultimoID.bin", "wb");
+	if(pFile != NULL && idMax != NULL)
+	{
+		fwrite(idMax, sizeof(int), 1, pFile);
+		fclose(pFile);
+		free(idMax);
+		retorno = 0;
+	}
+	return retorno;
+}
