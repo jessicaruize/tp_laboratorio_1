@@ -23,7 +23,7 @@ int menu_principal(int* respuesta)
 		puts("5. Baja de empleado.");
 		puts("6. Listar empleados.");
 		puts("7. Ordenar empleados.");
-		puts("8. Guardar los datos de los empleados en el archivo datatxt.csv (modo texto).");
+		puts("8. Guardar los datos de los empleados en el archivo data.csv (modo texto).");
 		puts("9. Guardar los datos de los empleados en el archivo data.bin (modo binario).");
 		puts("10. Salir.");
 		if(!utn_pedirEntero(respuesta, "Ingrese una opción.", "Error.", 1, 10, 2, 1))
