@@ -9,7 +9,7 @@
 
 
 
-static int Empleado_idIncremental =  5;
+static int Empleado_idIncremental =  0;
 
 /*funcion que carga datos para probar el codigo
  * aEmpleado es el array a cargar datos.
@@ -94,24 +94,15 @@ int eEmpleado_obtenerIndiceLibre(eEmpleado aEmpleado[], int TAM)
 /*funcion que recibe como parametro a la lista de empleados y todos los datos a cargar
  *lista, puntero recibido que se devuelve cargado de los datos recibidos
  *indice, representa al indice de la lista que va a ser cargado
- *id, dato decibido para cargar
- *nombre cadena decibida para cargar
- *apellido cadena decibida para cargar
- *salario dato decibido para cargar
- *sector dato decibido para cargar
+ *eEmpleado aux empleado auxiliar acargar en el array
  *  retorna -1 en caso de error y 0 si no hay error.
  * */
-int eEmpleado_agregarEmpleado(eEmpleado* lista, int indice, int id, char nombre[], char apellido[], float salario, int sector)
+int eEmpleado_agregarEmpleado(eEmpleado* lista, int indice, eEmpleado aux)
 {
 	int retorno=-1;
-	if(lista != NULL && nombre != NULL && apellido != NULL && indice > 0 && salario > 0 && sector > 0)
+	if(lista != NULL && indice > -1)
 	{
-		lista[indice].id = id;
-		strncpy(lista[indice].nombre, nombre, MAX_CHARS_CADENAS);
-		strncpy(lista[indice].apellido, apellido, MAX_CHARS_CADENAS);
-		lista[indice].salario = salario;
-		lista[indice].sector = sector;
-		lista[indice].isEmpty = OCUPADO;
+		lista[indice] = aux;
 		retorno = 0;
 	}
 	return retorno;
@@ -166,11 +157,11 @@ int eEmpleado_mostrarUno(eEmpleado* pEmpleado)
 	{
 		retorno = 0; //bien.
 
-		printf("ID:#%-4d nombre:%-15s apellido:%-15s salario:%-.2f  --  ID sector:#%-4d \n", pEmpleado->id,
-																						     pEmpleado->nombre,
-																						     pEmpleado->apellido,
-																						     pEmpleado->salario,
-																						     pEmpleado->sector);
+		printf("ID:%-4d \t nombre:%-15s \t apellido:%-15s \t salario:%-.2f  \t ID sector:%-4d \n", pEmpleado->id,
+																								   pEmpleado->nombre,
+																								   pEmpleado->apellido,
+																								   pEmpleado->salario,
+																								   pEmpleado->sector);
 	}
 	return retorno;
 }
@@ -204,6 +195,28 @@ int eEmpleado_mostrarTodos(eEmpleado aEmpleado[], int TAM, int* cantidad)//_DUDA
 		retorno = 0; //hay Empleados para mostrar.
 	}
 
+	return retorno;
+}
+
+int eEmpleado_isEmpty(eEmpleado aEmpleado[], int TAM)//_DUDA_//
+{
+	int i;
+	int retorno = -1;//no hay nada
+	int contador = 0;
+	if (aEmpleado != NULL && TAM > 0)
+	{
+		for (i = 0; i < TAM; i++)
+		{
+			if (aEmpleado[i].isEmpty == OCUPADO)
+			{
+				contador++;
+			}
+		}
+	}
+	if (contador > 0)
+	{
+		retorno = 0; //hay Empleados .
+	}
 	return retorno;
 }
 
@@ -286,11 +299,13 @@ int eEmpleados_TotalPromedioSalario(eEmpleado listaEmpleados[], int tamEmpleado,
 				contador ++;
 			}
 		}
-		*salarioPromedio = acumulador/contador;
-		printf("acumulador %f --- %d\n", acumulador, contador);
-		*totalSalarios = acumulador;
-
-		*contadorEmpleadosSalProm = eEmpleados_SalarioPromedio(listaEmpleados, tamEmpleado, *salarioPromedio);
+		if(contador > 0)
+		{
+			*salarioPromedio = acumulador/contador;
+			*totalSalarios = acumulador;
+			retorno = 0;
+			*contadorEmpleadosSalProm = eEmpleados_SalarioPromedio(listaEmpleados, tamEmpleado, *salarioPromedio);
+		}
 	}
 	return retorno;
 }

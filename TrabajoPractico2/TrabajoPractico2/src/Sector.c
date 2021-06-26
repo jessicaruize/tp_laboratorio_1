@@ -103,7 +103,7 @@ int eSector_mostrarUno(eSector* pSector)
 	if(pSector != NULL)
 	{
 		retorno = 0; //bien.
-		printf("Descripción:%-20s ID:#%-4d\n", pSector->descripcion,
+		printf("Descripción:%-20s ID:%-4d\n", pSector->descripcion,
 										       pSector->idSector);
 	}
 	return retorno;
@@ -185,7 +185,7 @@ int eSector_cargarDatos(eSector* pArray)
 	if(pArray != NULL)
 	{
 
-		if(!utn_pedirAlfabetico(pArray->descripcion, "Ingrese nombre: ", "Error.\n", 2))
+		if(!utn_pedirAlfabetico(pArray->descripcion, MAX_CHARS_CADENAS, "Ingrese nombre: ", "Error.\n", 2))
 		{
 			 retorno = 0;
 		}
@@ -207,7 +207,7 @@ int eSector_modificarUno(eSector* Sector)
 
 			{
 				case 1: //Descripcion
-					utn_pedirAlfabetico(Sector->descripcion, "Ingrese la descripcion: ", "Error", 2);
+					utn_pedirAlfabetico(Sector->descripcion, MAX_CHARS_CADENAS, "Ingrese la descripcion: ", "Error", 2);
 				break;
 				case 2: // salir
 					if(!utn_verificar("¿Desea salir? [s/n]", "Error", 2))

@@ -19,7 +19,6 @@ int main(void)
 {
 	setbuf(stdout, NULL);
 	int opcion;
-	//int criterioDeOrdenamiento;
 	int bufferRespuestas;
 	float totalSalarios;
 	float promedioSalarios;
@@ -31,11 +30,11 @@ int main(void)
 
 	eEmpleado Empleado[TAM_EMPLEADO];
 	eEmpleado_inicializar(Empleado, TAM_EMPLEADO);
-	eEmpleado_cargaAutomaticaEmpleado(Empleado, 5);
+	//eEmpleado_cargaAutomaticaEmpleado(Empleado, 5);
 
 	do {
-		printf("\nMENU: \n1_Alta.\n2_Baja.\n3_Modificación\n4_Listado productos\n0_Salir.\n");
-		if(!utn_pedirEntero(&opcion, "\nIngrese el numero correstpondiente a la acción que desea realizar: \n", "Error.\n", 0, 7, 2, 1))
+		printf("\nMENU: \n1_Alta.\n2_Baja.\n3_Modificación\n4_Informes.\n0_Salir.\n");
+		if(!utn_pedirEntero(&opcion, "\nIngrese el numero correstpondiente a la acción que desea realizar: \n", "Error. Ingrese un número corrrecto.\n", 0, 4, 2, 1))
 		{
 			printf("\nOpción elegida: %d\n", opcion);
 			switch (opcion)
@@ -60,10 +59,10 @@ int main(void)
 					break;
 					case 0:
 						puts("\nAlta exitosa.\n");
-						eConjuntos_mostrarTodos(Empleado, TAM_EMPLEADO, Sector, TAM_SECTOR);
+						//eConjuntos_mostrarTodos(Empleado, TAM_EMPLEADO, Sector, TAM_SECTOR);
 					break;
 					case 1:
-						puts("Operacion cancelada con exito.\n");
+						puts("Operacion cancelada por el usuario.\n");
 					break;
 					}
 				break;
@@ -73,8 +72,7 @@ int main(void)
 					switch (bufferRespuestas)
 					{
 					case -2:
-						printf("5656");
-						puts("Error.\n");
+						puts("No es posible dar de baja. Error o no hay empleados.\n");
 					break;
 					case -1:
 						bufferRespuestas = utn_verificar("ID no existe.\n¿Desea salir?\n [s/n]", "Error.\n", 2);
@@ -100,7 +98,7 @@ int main(void)
 					switch(opcion)
 					{
 						case -2:
-							printf("\nError.");
+							printf("\nNo es posible editar. Error o no hay empleados");
 						break;
 						case -1:
 							printf("\nModificación cancelada.");
@@ -113,23 +111,26 @@ int main(void)
 						break;
 					}
 				break;
-				case 4: //ordenado por apellido y sector
-					puts("LISTAS: \n1_Empleados por apellido.\n2_Empleados por sector.\n3_Información salarios");
+				case 4:
+					puts("LISTAS: \n1_Listado de los empleados ordenados alfabéticamente por Apellido y Sector.\n2_Total y promedio de los salarios, y cuántos empleados superan el salario promedio.");
 					utn_pedirEntero(&bufferRespuestas, "Ingrese el número correspondiente a la opción que desea realizar: ", "Error.", 1, 5, 2, 1);
 					switch(bufferRespuestas)
 					{
 						case 1:
-							eEmpleado_SortApellidos(Empleado, TAM_EMPLEADO);
-							eConjuntos_mostrarTodos(Empleado, TAM_EMPLEADO, Sector, TAM_SECTOR);
+							if(eConjuntos_SortSectorEmpleados(Sector, TAM_SECTOR, Empleado, TAM_EMPLEADO))
+							{
+								puts("\nOcurrio un error ó no hay empleados.");
+							}
 						break;
 						case 2:
-							eConjuntos_SortSectorEmpleados(Sector, TAM_SECTOR, Empleado, TAM_EMPLEADO);
-
-						break;
-						case 3:
-							eEmpleados_TotalPromedioSalario(Empleado, TAM_EMPLEADO, &totalSalarios, &promedioSalarios, &EmpleadosSalariosPromedio);
-							//Total y promedio de los salarios, y cuántos empleados superan el salario promedio.
-							printf("El total de los salarios es: $%.2f.\nEl promedio de los salarios es: $%.2f.\nLos empleados que superan el salario peromedio son: %d",totalSalarios, promedioSalarios, EmpleadosSalariosPromedio);
+							if(!eEmpleados_TotalPromedioSalario(Empleado, TAM_EMPLEADO, &totalSalarios, &promedioSalarios, &EmpleadosSalariosPromedio))
+							{
+								printf("\nEl total de los salarios es: $%.2f.\nEl promedio de los salarios es: $%.2f.\nLos empleados que superan el salario peromedio son: %d\n",totalSalarios, promedioSalarios, EmpleadosSalariosPromedio);
+							}
+							else
+							{
+								puts("\nOcurrio un error ó no hay empleados.\n");
+							}
 					}
 				break;
 			}

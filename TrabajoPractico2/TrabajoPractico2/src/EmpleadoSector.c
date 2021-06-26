@@ -21,13 +21,13 @@ int eConjuntos_cargarDatos(eEmpleado* pEmpleado, eSector arraySector[], int TAM2
 	int indiceSector;
 	if((pEmpleado != NULL) && (arraySector != NULL))
 	{
-		utn_pedirAlfabetico(pEmpleado->nombre, "\n\nIngrese nombre: ", "\nError.\n", 2);
-		utn_pedirAlfabetico(pEmpleado->apellido, "\n\nIngrese apellido: ", "\nError.\n", 2);
-		utn_pedirFlotante(&pEmpleado->salario, "\nIngrese salario: \n", "\nError.\n", 0, 99999999, 2, 1);
-		eSector_mostrarTodos(arraySector, TAM2, &cantidadSector);
-		eSector_buscarIdMaximo(arraySector, TAM2, &idMaximoSector);
-		utn_pedirEntero(&pEmpleado->sector, "\nIngrese el ID del sector: \n", "\nError\n", 1, idMaximoSector, 2, 1);
-		if(!eSector_buscarIndicePorId(arraySector, TAM2, pEmpleado->sector, &indiceSector))
+		if(!utn_pedirAlfabetico(pEmpleado->nombre, MAX_CHARS_CADENAS, "\n\nIngrese nombre: ", "\nError.\n", 2) &&
+		!utn_pedirAlfabetico(pEmpleado->apellido, MAX_CHARS_CADENAS, "\n\nIngrese apellido: ", "\nError.\n", 2) &&
+		!utn_pedirFlotante(&pEmpleado->salario, "\nIngrese salario: \n", "\nError.\n", 0, 99999999, 2, 1) &&
+		!eSector_mostrarTodos(arraySector, TAM2, &cantidadSector) &&
+		!eSector_buscarIdMaximo(arraySector, TAM2, &idMaximoSector) &&
+		!utn_pedirEntero(&pEmpleado->sector, "\nIngrese el ID del sector: \n", "\nError\n", 1, idMaximoSector, 2, 1) &&
+		!eSector_buscarIndicePorId(arraySector, TAM2, pEmpleado->sector, &indiceSector))
 		{
 			 retorno = 0;
 		}
@@ -51,18 +51,19 @@ int eConjuntos_alta(eEmpleado arrayEmpleados[], int TAM1, eSector arraySector[],
 	if(arrayEmpleados != NULL && TAM1 > 0 && arraySector != NULL && TAM2 > 0)
 	{
 		indice = eEmpleado_obtenerIndiceLibre(arrayEmpleados, TAM1);
-
 		if (indice > -1)
 		{
 			if(!eConjuntos_cargarDatos(&auxEmpleado, arraySector, TAM2))
 			{
-				if(utn_verificar("\n¿Desea guardar los cambios[s/n]?", "Error", 2) == 0)
+				if(!utn_verificar("\n¿Desea guardar los cambios[s/n]?", "Error", 2))
 				{
 					auxEmpleado.id = eEmpleado_obtenerID();
-					//arrayEmpleados[indice] = auxEmpleado;
-					eEmpleado_agregarEmpleado(arrayEmpleados, indice, auxEmpleado.id, auxEmpleado.nombre, auxEmpleado.apellido, auxEmpleado.salario, auxEmpleado.sector);
-					eConjuntos_mostrarUno(&arrayEmpleados[indice], arraySector, TAM2);
-					retorno = 0; //se dio de alta satisfactoriamente
+					auxEmpleado.isEmpty = OCUPADO;
+					if(!eEmpleado_agregarEmpleado(arrayEmpleados, indice, auxEmpleado) &&
+					!eConjuntos_mostrarUno(&arrayEmpleados[indice], arraySector, TAM2))
+					{
+						retorno = 0; //se dio de alta satisfactoriamente
+					}
 				}
 				else
 				{
@@ -102,12 +103,12 @@ int eConjuntos_mostrarUno(eEmpleado* pEmpleado, eSector arraySector[], int TAM2)
 		retorno = 0; //bien.
 		eSector_buscarIndicePorId(arraySector, TAM2, pEmpleado->id, &indiceSector);
 
-		printf("ID:#%-4d\tnombre:%-15s apellido:%-15s salario:$%-.2f \tID sector:#%-4d sector:%-15s \n", pEmpleado->id,
-																										 pEmpleado->nombre,
-																				  				  	  	 pEmpleado->apellido,
-																										 pEmpleado->salario,
-																										 pEmpleado->sector,
-																										 arraySector[indiceSector].descripcion);
+		printf("ID:%-4d \t nombre:%-15s \t apellido:%-15s \t salario:$%-.2f \t ID sector:%-4d \t sector:%-15s \n", pEmpleado->id,
+																										 	 	   pEmpleado->nombre,
+																												   pEmpleado->apellido,
+																												   pEmpleado->salario,
+																												   pEmpleado->sector,
+																												   arraySector[indiceSector].descripcion);
 	}
 	return retorno;
 }
@@ -229,32 +230,35 @@ int eConjuntos_modificarUno(eEmpleado* pEmpleado, eSector arraySector[], int TAM
 				switch(respuesta)
 
 				{
-					case 1: //Descripcion
-						if(!utn_pedirAlfabetico(pEmpleado->nombre, "Ingrese la nombre: ", "Error", 2))
+					case 1:
+						if(!utn_pedirAlfabetico(pEmpleado->nombre, MAX_CHARS_CADENAS, "Ingrese la nombre: ", "Error", 2))
 						{
+							printf("Nombre modificado: %s", pEmpleado->nombre);
 							retorno=0;
 						}
 					break;
-					case 2: //nacionalidad
-						if(!utn_pedirAlfabetico(pEmpleado->apellido, "Ingrese apellido: ", "Error", 2))
+					case 2:
+						if(!utn_pedirAlfabetico(pEmpleado->apellido, MAX_CHARS_CADENAS, "Ingrese apellido: ", "Error", 2))
 						{
+							printf("Apellido modificado: %s", pEmpleado->apellido);
 							retorno=0;
 						}
 					break;
-					case 3: //salario
+					case 3:
 						if(!utn_pedirFlotante(&pEmpleado->salario, "Ingrese salario: ", "Error", 0, 1000000, 2, 1))
 						{
+							printf("Salario modificado: %.2f", pEmpleado->salario);
 							retorno = 0;
 						}
 					break;
-					case 4: //sector
+					case 4:
 						eSector_mostrarTodos(arraySector, TAM2, &cantidadSector);
 						eSector_buscarIdMaximo(arraySector, TAM2, &idMaximoSector);
 						if(!utn_pedirEntero(&pEmpleado->sector, "\nIngrese el ID del sector: \n", "\nError\n", 1, idMaximoSector, 2, 1))
 						{
 							if(!eSector_buscarIndicePorId(arraySector, TAM2, pEmpleado->sector, &indiceSector))
 							{
-								retorno = 0;//
+								retorno = 0;
 							}
 							else
 							{
@@ -266,6 +270,7 @@ int eConjuntos_modificarUno(eEmpleado* pEmpleado, eSector arraySector[], int TAM
 						}
 					break;
 					case 5: // salir
+						eConjuntos_mostrarUno(pEmpleado, arraySector, TAM2);
 						if(!utn_verificar("\n¿Modificación terminada? [s/n]", "Error", 2))
 						{
 							retorno = 1;
@@ -334,125 +339,29 @@ int eConjuntos_Modificacion(eEmpleado arrayEmpleado[], int TAM1, eSector arraySe
 	return retorno;
 }
 
-int eConjuntos_Sort(eEmpleado array[], int TAM, int criterio) {
-	int retorno = 0;
-	int i;
-	int j;
-	eEmpleado aux;
-
-	if (array != NULL && TAM > 0)
-	{
-		switch (criterio)
-		{
-			case 1: //Descrtipcion
-				printf("\n\t LISTA POR DESCRIPCIÓN: \n\n");
-				for (i = 0; i < TAM - 1; i++)
-				{
-					for (j = i + 1; j < TAM; j++)
-					{
-						if (array[i].isEmpty == OCUPADO
-							&& array[j].isEmpty == OCUPADO)
-						{
-							if (strcmp(array[i].nombre, array[j].nombre)>0)
-							{
-								aux = array[i];
-								array[i] = array[j];
-								array[j] = aux;
-							}
-						}
-					}
-				}
-				retorno = 1;
-			break;
-			case 2: //Precio mas caro
-				printf("\n\t LISTA POR PRECIO: \n\n");
-				for (i = 0; i < TAM - 1; i++)
-				{
-					for (j = i + 1; j < TAM; j++)
-					{
-						if (array[i].isEmpty == OCUPADO
-							&& array[j].isEmpty == OCUPADO)
-						{
-							if (array[i].salario < array[j].salario)
-							{
-								aux = array[i];
-								array[i] = array[j];
-								array[j] = aux;
-							}
-						}
-					}
-				}
-			retorno = 1;
-			break;
-				/*
-				case 4:
-					for (i = 0; i < TAM - 1; i++)
-					{
-						for (j = i + 1; j < TAM; j++)
-						{
-							if (array[i].isEmpty == OCUPADO
-								&& array[j].isEmpty == OCUPADO)
-							{
-								if (array[i].idEmpleado > array[j].idEmpleado)
-								{
-									aux = array[i];
-									array[i] = array[j];
-									array[j] = aux;
-								}
-							}
-						}
-					}
-				retorno = 1; //ID
-				break;
-				case 3:
-				for (i = 0; i < TAM - 1; i++)
-				{
-					for (j = i + 1; j < TAM; j++)
-					{
-						if (array[i].isEmpty == OCUPADO
-							&& array[j].isEmpty == OCUPADO)
-						{
-							if (array[i].idEmpleado < array[j].idEmpleado)
-							{
-								aux = array[i];
-								array[i] = array[j];
-								array[j] = aux;
-							}
-						}
-					}
-				}
-				retorno = 1;
-				break;
-				*/
-				default:
-					//CRITERIO DE ORDENAMIENTO MAL INGRESADO
-					retorno = 0;
-					break;
-				}
-	}
-	return retorno;
-}
-
-
 int eConjuntos_SortSectorEmpleados(eSector listaSector[], int tamSector, eEmpleado listaEmpleados[], int tamEmpleados)
 {
-	int retorno = -1; //ERROR.
+	int retorno = -1; //ERROR. o no hay empleados.
 	int i;
 	int j;
-	if(listaEmpleados != NULL && listaSector != NULL && tamEmpleados > 0 && tamSector > 0)
+	if(listaEmpleados != NULL && listaSector != NULL && tamEmpleados > 0 && tamSector > 0 &&
+	   !eEmpleado_isEmpty(listaEmpleados, tamEmpleados) &&
+	   !eEmpleado_SortApellidos(listaEmpleados, tamEmpleados) &&
+	   !eSector_SortSector(listaSector, tamSector))
 	{
-		eEmpleado_SortApellidos(listaEmpleados, tamEmpleados);
-		eSector_SortSector(listaSector, tamSector);
-		retorno= 0; //bien
+		retorno = 0; // ok
 		for(i=0; i<tamSector; i++)
 		{
-			printf("\n\n\n \t %-15s \n\n", listaSector[i].descripcion);
-			for(j=0; j<tamEmpleados; j++)
+			if(listaSector[i].isEmpty == OCUPADO)
 			{
-				if(listaEmpleados[j].sector == listaSector[i].idSector
-				   && listaEmpleados[j].isEmpty == OCUPADO && listaSector[i].isEmpty == OCUPADO)
+				printf("\n \t %-15s \n\n", listaSector[i].descripcion);
+				for(j=0; j<tamEmpleados; j++)
 				{
-					eConjuntos_mostrarUno(&listaEmpleados[j], listaSector, tamEmpleados);
+					if(listaEmpleados[j].sector == listaSector[i].idSector
+					   && listaEmpleados[j].isEmpty == OCUPADO && listaSector[i].isEmpty == OCUPADO)
+					{
+						eConjuntos_mostrarUno(&listaEmpleados[j], listaSector, tamEmpleados);
+					}
 				}
 			}
 		}

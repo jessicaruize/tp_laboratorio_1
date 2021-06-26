@@ -23,15 +23,26 @@ typedef struct
 
 int utn_pedirEntero(int* pResultado, char* mensaje, char* mensajeError, int min, int max, int reintentos, int condicional);
 int utn_pedirFlotante(float* pResultado, char* mensaje, char* mensajeError, float min, float max, int reintentos, int condicional);
-int utn_pedirAlfabetico(char cadena[], char* mensaje, char* mensajeError, int reintentos);
-int utn_pedirAlfabeticoEspacio(char cadena[], char* mensaje, char* mensajeError, int reintentos);
-int utn_pedirAlfanumerico(char cadena[], char* mensaje, char* mensajeError, int reintentos);
-int utn_pedirAlfanumericoEspacio(char cadena[], char* mensaje, char* mensajeError, int reintentos);
+int utn_pedirAlfabetico(char cadena[], int longitud, char* mensaje, char* mensajeError, int reintentos);
+int utn_pedirAlfabeticoEspacio(char cadena[], int longitud, char* mensaje, char* mensajeError, int reintentos);
+int utn_pedirAlfanumerico(char cadena[], int longitud, char* mensaje, char* mensajeError, int reintentos);
+int utn_pedirAlfanumericoEspacio(char cadena[], int longitud, char* mensaje, char* mensajeError, int reintentos);
 
 
 int utn_verificar(char* mensaje, char* mensajeError , int reintentos);
 int utn_PedirFecha (char* mensaje, char* mensajeError, int reintentos, eFecha* miFecha, int minAnio, int maxAnio);
 int utn_mostrarFecha(eFecha* miFecha, char* mensaje);
+
+int utn_esEnteroConSigno(char cadena[], int limite);
+int utn_esEntero(char cadena[], int limite);
+int utn_esFlotanteConSigno(char cadena[], int limite);
+int utn_esFlotante(char cadena[], int limite);
+int utn_esAlfabetico(char cadena[], int limite);
+int utn_esAlfabeticoEspacio(char cadena[], int limite);
+int utn_esAlfanumerico(char cadena[], int limite);
+int utn_esAlfanumericoEspacio(char cadena[], int limite);
+int utn_esCuil (char cadena[], int limite);
+int utn_esVerificable(char cadena[], int limite);
 
 #endif /* PEDIR_VALORES_H_ */
 
